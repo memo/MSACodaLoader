@@ -1,7 +1,16 @@
 
 import java.util.Collections;
 import java.util.Arrays;
-import java.util.List;  
+import java.util.List; 
+
+import oscP5.*;
+import netP5.*;
+
+OscP5 oscP5;
+NetAddress myRemoteLocation;
+
+final String oscIp = "127.0.0.1";
+final int oscPort = 8000;
 
 
 // class contains data for one frame
@@ -21,7 +30,7 @@ public class Frame {
 
 
 List<Frame> frames;
-
+String data_headers[];
 
 
 // in cm
@@ -50,12 +59,16 @@ void setup() {
 
   f = createFont("SansSerif", 12);
   textFont(f);
+  
+  data_headers = loadStrings("data_headers.txt");
+
+  oscP5 = new OscP5(this, 0);
+  myRemoteLocation = new NetAddress(oscIp, oscPort);
 }
 
+
+
 void draw() {
-
-
-
   background(0);
 
   pushMatrix();
@@ -68,7 +81,7 @@ void draw() {
     camPos.x = camDistance * sin(camPhi) * cos(camTheta);
     camPos.y = camDistance * sin(camPhi) * sin(camTheta);
     camPos.z = camDistance* cos(camPhi);
-    
+
     camPos.add(smoothedCamLookAt);
   }
 
@@ -134,6 +147,9 @@ void draw() {
     // set camera look at
     if (camLookAtOrigin) camLookAt.set(0, 0, 100);
     else camLookAt.set(frame.center);
+
+    // send Osc
+    sendOsc(frame);
 
     // advance playhead
     currentFrame += playDir;
@@ -269,6 +285,30 @@ List<String> getStringListForRow(String data[], int rowIndex) {
   return stringList;
 }
 
+void sendOsc(Frame frame) {
+  if (frame != null) {
+    OscBundle myBundle = new OscBundle();
+
+    for (int i=0; i<frame.points.size(); i++) {
+      PVector p = frame.points.get(i);
+      if (frame.visible.get(i)) {
+        String jointname = data_headers[i];
+        String userId = "1";
+        String oscAddress = "/daikon/user/" + userId + "/skeleton/" + jointname + "/pos";
+
+        OscMessage myMessage = new OscMessage(oscAddress);
+        myMessage.add(p.x);
+        myMessage.add(p.y);
+        myMessage.add(p.z);
+        myBundle.add(myMessage);
+      }
+    }
+
+    oscP5.send(myBundle, myRemoteLocation);
+  }
+}
+
+
 void keyPressed() {
   switch(key) {
   case 'l':   // ask for new file to load
@@ -325,7 +365,7 @@ void mouseMoved() {
 }
 
 void mouseDragged() {
-    camTheta = map(mouseX, 0, width, -PI, PI);
-    camPhi = map(mouseY, 0, height, PI, 0);
+  camTheta = map(mouseX, 0, width, -PI, PI);
+  camPhi = map(mouseY, 0, height, PI, 0);
 }
 
