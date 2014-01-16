@@ -1,0 +1,56 @@
+IJ
+PX
+L_psis
+L_asis
+C7
+T8
+L.Med.Elbow
+L.Med.Wrist
+L.Lat.Wrist
+L.Hand
+L_heel
+L_toe
+R_psis
+R_asis
+Marker 15
+Marker 16
+R.Med.Elbow
+R.Med.Wrist
+R.Lat.Wrist
+R.Hand
+R_heel
+R_toe
+L.Rearhead
+L.Forehead
+Marker 25
+Marker 26
+R.Rearhead
+R.Forehead
+R_UpperArm_1
+R_UpperArm_2
+R_UpperArm_3
+R_UpperArm_4
+R_Thigh_1
+R_Thigh_2
+R_Thigh_3
+R_Thigh_4
+R_Shank_1
+R_Shank_2
+R_Shank_3
+R_Shank_4
+L_UpperArm_1
+L_UpperArm_2
+L_UpperArm_3
+L_UpperArm_4
+L_Thigh_1
+L_Thigh_2
+L_Thigh_3
+L_Thigh_4
+CR_calf_1
+CR_calf_2
+CR_calf_3
+CR_calf_4
+L_Shank_1
+L_Shank_2
+L_Shank_3
+L_Shank_4
