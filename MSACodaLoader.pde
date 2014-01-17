@@ -11,6 +11,8 @@ NetAddress myRemoteLocation;
 
 final String oscIp = "127.0.0.1";
 final int oscPort = 8000;
+boolean bSendMarkers = false;
+boolean bSendSkeleton = true;
 
 
 // class contains data for one frame
@@ -59,7 +61,7 @@ void setup() {
 
   f = createFont("SansSerif", 12);
   textFont(f);
-  
+
   data_headers = loadStrings("data_headers.txt");
 
   oscP5 = new OscP5(this, 0);
@@ -285,24 +287,90 @@ List<String> getStringListForRow(String data[], int rowIndex) {
   return stringList;
 }
 
+
+OscMessage addSkeletonOscMessage(String jointname, PVector p) {
+  OscMessage myMessage = new OscMessage("/daikon/user/1/skeleton/" + jointname + "/pos");
+  myMessage.add(p.x);
+  myMessage.add(p.y);
+  myMessage.add(p.z);
+  return myMessage;
+}
+
 void sendOsc(Frame frame) {
   if (frame != null) {
     OscBundle myBundle = new OscBundle();
 
-    for (int i=0; i<frame.points.size(); i++) {
-      PVector p = frame.points.get(i);
-      if (frame.visible.get(i)) {
-        String jointname = data_headers[i];
-        String userId = "1";
-        String oscAddress = "/daikon/user/" + userId + "/skeleton/" + jointname + "/pos";
+    if (bSendMarkers) {
+      for (int i=0; i<frame.points.size(); i++) {
+        PVector p = frame.points.get(i);
+        if (frame.visible.get(i)) {
+          String jointname = data_headers[i];
+          String userId = "1";
+          //        String oscAddress = "/daikon/user/" + userId + "/skeleton/" + jointname + "/pos";
+          String oscAddress = "/marker/" + jointname;
 
-        OscMessage myMessage = new OscMessage(oscAddress);
-        myMessage.add(p.x);
-        myMessage.add(p.y);
-        myMessage.add(p.z);
-        myBundle.add(myMessage);
+          OscMessage myMessage = new OscMessage(oscAddress);
+          myMessage.add(p.x);
+          myMessage.add(p.y);
+          myMessage.add(p.z);
+          myBundle.add(myMessage);
+        }
       }
     }
+
+    if (bSendSkeleton) {
+      OscMessage myMessage;
+      PVector pLeftHip = PVector.lerp(frame.points.get(3-1), frame.points.get(4-1), 0.5);
+      PVector pRightHip = PVector.lerp(frame.points.get(13-1), frame.points.get(14-1), 0.5);
+      PVector pHip = PVector.lerp(pLeftHip, pRightHip, 0.5);
+      PVector pLeftFoot = PVector.lerp(frame.points.get(55-1), frame.points.get(56-1), 0.5);
+      PVector pRightFoot = PVector.lerp(frame.points.get(39-1), frame.points.get(40-1), 0.5);
+      PVector pRightHand = frame.points.get(18-1);
+      PVector pLeftHand = frame.points.get(8-1);
+      PVector pRightElbow = frame.points.get(17-1);
+      PVector pLeftElbow = frame.points.get(7-1);
+      PVector pRightShoulder = frame.points.get(16-1);
+      PVector pLeftShoulder = frame.points.get(15-1);
+      PVector pShoulderCenter = PVector.lerp(pRightShoulder, pLeftShoulder, 0.5);
+      PVector pHead = PVector.lerp(PVector.lerp(frame.points.get(23-1), frame.points.get(24-1), 0.5), PVector.lerp(frame.points.get(27-1), frame.points.get(28-1), 0.5), 0.5);
+
+
+      myBundle.add( addSkeletonOscMessage("HIP_CENTER", pHip) );
+      myBundle.add( addSkeletonOscMessage("SHOULDER_CENTER", pShoulderCenter) );
+      myBundle.add( addSkeletonOscMessage("HEAD", pHead) );
+      myBundle.add( addSkeletonOscMessage("SHOULDER_LEFT", pLeftShoulder) );
+      myBundle.add( addSkeletonOscMessage("ELBOW_LEFT", pLeftElbow) );
+      myBundle.add( addSkeletonOscMessage("HAND_LEFT", pLeftHand) );
+      myBundle.add( addSkeletonOscMessage("SHOULDER_RIGHT", pRightShoulder) );
+      myBundle.add( addSkeletonOscMessage("ELBOW_RIGHT", pRightElbow) );
+      myBundle.add( addSkeletonOscMessage("HAND_RIGHT", pRightHand) );
+      myBundle.add( addSkeletonOscMessage("HIP_LEFT", pLeftHip) );
+      myBundle.add( addSkeletonOscMessage("HIP_RIGHT", pRightHip) );
+      myBundle.add( addSkeletonOscMessage("FOOT_LEFT", pLeftFoot) );
+      myBundle.add( addSkeletonOscMessage("FOOT_RIGHT", pRightFoot) );
+    }
+
+
+    //  case 0: return "";
+    //  case 1: return "SPINE";
+    //  case 2: return "";
+    //  case 3: return "";
+    //  case 4: return "";
+    //  case 5: return "";
+    //  case 6: return "WRIST_LEFT";
+    //  case 7: return "";
+    //  case 8: return "";
+    //  case 9: return "";
+    //  case 10: return "WRIST_RIGHT";
+    //  case 11: return "";
+    //  case 12: return "";
+    //  case 13: return "KNEE_LEFT";
+    //  case 14: return "ANKLE_LEFT";
+    //  case 15: return "";
+    //  case 16: return "";
+    //  case 17: return "KNEE_RIGHT";
+    //  case 18: return "ANKLE_RIGHT";
+    //  case 19: return "";
 
     oscP5.send(myBundle, myRemoteLocation);
   }
@@ -361,7 +429,7 @@ void mousePressed() {
 }
 
 void mouseMoved() {
-  mouseDragged();
+//  mouseDragged();
 }
 
 void mouseDragged() {
