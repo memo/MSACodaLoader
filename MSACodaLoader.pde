@@ -170,6 +170,9 @@ void draw() {
   {
     fill(200);
     String s = "";
+    s += "drag mouse to rotate view\n";
+    s += "] - zoom in\n";
+    s += "[ - zoom out\n";
     s += "l - load new data file\n";
     s += "SPACE - toggle play / pause \n";
     s += "> - play forwards\n";
@@ -178,8 +181,6 @@ void draw() {
     s += ", - previous frame\n";
     s += "w - rewind\n";
     s += "o - toggle between looking at world center, or center of the dancer\n";
-    s += "] - zoom in\n";
-    s += "[ - zoom out\n";
 
     textAlign(LEFT, TOP);
     text(s, 10, 10);
