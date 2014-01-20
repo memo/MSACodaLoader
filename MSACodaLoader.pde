@@ -117,7 +117,7 @@ void draw() {
 
 
   // cap currentFrame before using it
-  currentFrame = constrain(currentFrame, 0, numFrames-1);
+  if(numFrames > 0) currentFrame = (currentFrame + numFrames) % numFrames;
 
   // draw frame data
   if (frames!=null) {
